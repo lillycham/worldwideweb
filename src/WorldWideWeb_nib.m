@@ -295,7 +295,8 @@ void WWWLoadMainNib(void)
     b = [[[NSBox alloc] initWithFrame:NSMakeRect(2, 344, 470, 2)] autorelease];
     [b setBoxType:NSBoxSeparator];
     [v addSubview:b];
-    label(v, nibText(@"Info", 0), NSMakeRect(121, 367, 208, 36), helvetica(14));
+    label(v, @"An excercise in global information availability",
+	NSMakeRect(121, 367, 208, 36), helvetica(14));
     label(v, nibText(@"Info", 1), NSMakeRect(5, 281, 463, 36), helvetica(14));
     {
 	NSScrollView * sv = [[[NSScrollView alloc] initWithFrame:NSMakeRect(25, 27, 418, 231)] autorelease];
