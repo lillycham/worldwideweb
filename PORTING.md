@@ -91,6 +91,11 @@ modern Mac.
 - **Windows.** AppKit windows have no separate resize bar, so the 9 points
   that `adjustWindow` added for it are gone. NeXT's `windowWillClose:`
   became AppKit's `windowShouldClose:`.
+- **Network time limit.** TBL's network code is synchronous on the main
+  thread, so the app waits while it connects. Most hosts in the 1991 pages
+  are long gone, and one that drops packets made `connect()` wait about 75
+  seconds while the app hung. `HTDoConnect()` in `HTTCP.c` gives up after
+  15 seconds (`HT_CONNECT_TIMEOUT`). Everything else is still synchronous.
 - **Resources.** `appDirectory` is the bundle's `Contents/Resources/`, where
   the bundled pages and style sheets now go.
 

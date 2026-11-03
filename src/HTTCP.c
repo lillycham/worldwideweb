@@ -274,3 +274,63 @@ PUBLIC char * HTHostName()
     return hostname;
 }
 
+
+
+/*	Connect, but give up after a while			HTDoConnect()
+**	------------------------------------
+**
+**	Port addition. The original called connect() directly, on the main
+**	thread, which blocks the whole application until TCP gives up. Most
+**	hosts named in the 1991 documents are long gone, and a host whose
+**	firewall drops packets makes connect() wait for about 75 seconds, so
+**	the application would hang. This does the same as connect() on a
+**	blocking socket, but fails with ETIMEDOUT after HT_CONNECT_TIMEOUT
+**	seconds. Everything else stays synchronous, as before.
+*/
+#include <fcntl.h>
+#include <poll.h>
+#include "HTTCP.h"		/* For HT_CONNECT_TIMEOUT */
+
+#ifdef __STDC__
+PUBLIC int HTDoConnect(int soc, const struct sockaddr * address, int length)
+#else
+PUBLIC int HTDoConnect(soc, address, length)
+    int soc;
+    struct sockaddr * address;
+    int length;
+#endif
+{
+    int flags = fcntl(soc, F_GETFL, 0);
+    int status;
+    int saved;
+
+    if (flags < 0) return connect(soc, address, length);
+    fcntl(soc, F_SETFL, flags | O_NONBLOCK);
+    status = connect(soc, address, length);
+    if (status < 0 && errno == EINPROGRESS) {
+	struct pollfd p;
+	p.fd = soc;
+	p.events = POLLOUT;
+	p.revents = 0;
+	do {
+	    status = poll(&p, 1, HT_CONNECT_TIMEOUT * 1000);
+	} while (status < 0 && errno == EINTR);
+	if (status == 0) {			/* Timed out */
+	    errno = ETIMEDOUT;
+	    status = -1;
+	} else if (status > 0) {		/* Connected, or refused */
+	    int error = 0;
+	    socklen_t len = sizeof(error);
+	    getsockopt(soc, SOL_SOCKET, SO_ERROR, &error, &len);
+	    if (error) {
+		errno = error;
+		status = -1;
+	    } else status = 0;
+	}
+    }
+    saved = errno;
+    fcntl(soc, F_SETFL, flags);			/* Blocking again */
+    errno = saved;
+    if (status < 0) CTRACE(tfp, "TCP: connect() failed: %s\n", strerror(errno));
+    return status;
+}

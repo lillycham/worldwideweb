@@ -339,7 +339,8 @@ PRIVATE int get_connection(arg)
 	}
 	con->socket = status;
 
-    	status = connect(con->socket, (struct sockaddr*)&soc_address,
+    	status = HTDoConnect(	/* Port: was connect() */
+		con->socket, (struct sockaddr*)&soc_address,
 	 sizeof(soc_address));
         if (status<0){
 	    (void) HTInetStatus("connect");
@@ -630,7 +631,8 @@ PUBLIC int HTFTP_open_file_read(name)
 		    (int)*((unsigned char *)(&soc_address.sin_addr)+2),
 		    (int)*((unsigned char *)(&soc_address.sin_addr)+3));
 
-    	status = connect(data_soc, (struct sockaddr*)&soc_address,
+    	status = HTDoConnect(	/* Port: was connect() */
+		data_soc, (struct sockaddr*)&soc_address,
 	 	sizeof(soc_address));
         if (status<0){
 	    (void) HTInetStatus("connect for data");

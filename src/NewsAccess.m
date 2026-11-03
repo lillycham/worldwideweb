@@ -58,6 +58,7 @@ extern char *strncpy();
 #include <netdb.h>
 #import <streams/streams.h>
 #import "HTUtils.h"		/* Coding convention macros */
+#import "HTTCP.h"		/* Port: for HTDoConnect() */
 
 @implementation NewsAccess
 
@@ -804,7 +805,8 @@ void read_group(const char * groupName, int first_required, int last_required)
         if (s<0) {
     	    NXSetWindowTitle([HT window], "Connecting to NewsHost ...");	/* Tell user  */
 	    s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	    status = connect(s, (struct sockaddr*)&soc_address, sizeof(soc_address));
+	    status = HTDoConnect(	/* Port: was connect() */
+		s, (struct sockaddr*)&soc_address, sizeof(soc_address));
 	    if (status<0){
 		char message[256];
 	        close(s);

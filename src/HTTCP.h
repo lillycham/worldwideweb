@@ -92,3 +92,17 @@ extern const char * HTHostName(void);
 #else
 extern char * HTHostName();
 #endif
+
+/*	Connect with a time limit (Port addition)		HTDoConnect()
+**	-------------------------
+**
+**	Like connect() on a blocking socket, but fails with errno ETIMEDOUT
+**	after HT_CONNECT_TIMEOUT seconds. See HTTCP.c.
+*/
+#define HT_CONNECT_TIMEOUT 15
+
+#ifdef __STDC__
+extern int HTDoConnect(int soc, const struct sockaddr * address, int length);
+#else
+extern int HTDoConnect();
+#endif

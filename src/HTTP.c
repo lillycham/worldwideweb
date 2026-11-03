@@ -96,7 +96,8 @@ int HTTP_Get(arg)
 /*	Now, let's get a socket set up from the server for the sgml data:
 */      
     s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    status = connect(s, (struct sockaddr*)&soc_address, sizeof(soc_address));
+    status = HTDoConnect(	/* Port: was connect() */
+		s, (struct sockaddr*)&soc_address, sizeof(soc_address));
     if (status<0){
 	if (TRACE) printf("HTTPAccess: Unable to connect to remote host for `%s'.\n",
 	    arg);
