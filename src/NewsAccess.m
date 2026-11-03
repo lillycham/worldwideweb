@@ -127,12 +127,13 @@ PRIVATE char next_char(void)
     } else {		    /* Alphanumeric node name: */
 	phost=gethostbyname((char*)NewsHost);	/* See netdb.h */
 	if (!phost) {
-	    NXRunAlertPanel(NULL, "Can't find internet node name `%s'.",
-	    	NULL,NULL,NULL,
-		NewsHost);
+	    /* Port: no alert here. This runs when the nib loads, and the
+	    ** default news host (cernvax.cern.ch) is long gone, so it would
+	    ** stop every launch. Connecting then fails when news is used,
+	    ** and accessName: below tells the user. */
 	    CTRACE(tfp,
 	      "NewsAccess: Can't find internet node name `%s'.\n",NewsHost);
-	    return nil;  /* Fail */
+	    return;  /* Fail */
 	}
 	memcpy(&sin->sin_addr, phost->h_addr, phost->h_length);
     }

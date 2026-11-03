@@ -9,6 +9,8 @@ The original source comes from
 [cynthia/WorldWideWeb](https://github.com/cynthia/WorldWideWeb), which
 archives the files from the NeXT distribution of version 0.15–0.16.
 
+![The home page, as WorldWideWeb shows it on macOS](docs/screenshot.png)
+
 ## Build and run
 
 You need the Xcode command line tools (`xcode-select --install`).
