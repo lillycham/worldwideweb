@@ -1,0 +1,336 @@
+=== MENUS ===
+Menu "Paste As" at (538,449) supermenu=Edit
+Menu "Edit" at (126,356) supermenu=WorldWideWeb
+    Cut                                      Cmd-x
+    Copy                                     Cmd-c
+    Paste                                    Cmd-v
+    Paste As                                 
+    Delete                                   
+    Undo                                     Cmd-z
+    Find                                     
+    Spelling...                              
+    Check Spelling                           Cmd-;
+    Select All                               Cmd-a
+Menu "WorldWideWeb" at (5,299) supermenu=None
+    Info                                     
+    Navigate                                 
+    Document                                 
+    Edit                                     
+    Find                                     
+    Links                                    
+    Style                                    
+    Print...                                 Cmd-p
+    Page layout...                           
+    Windows                                  
+    Services                                 
+    Hide                                     Cmd-h
+    Quit                                     Cmd-q
+Menu "Info" at (122,519) supermenu=WorldWideWeb
+    Panel...                                 
+    Help...                                  
+Menu "Navigate" at (126,456) supermenu=WorldWideWeb
+    Back                                     Cmd-^
+    Next                                     Cmd->
+    Previous                                 Cmd-<
+    Home                                     Cmd-H
+    Panel...                                 
+Menu "Document" at (122,319) supermenu=WorldWideWeb
+    Open file...                             Cmd-o
+    Open given document address              Cmd-O
+    New file...                              Cmd-n
+    Save                                     Cmd-s
+    Save all edited windows                  Cmd-S
+    Save a copy in                           
+    Inspect ...                              Cmd-3
+    (Diagnostics)                            
+    Miniaturize                              
+    Open master template document            
+    Close all other windows                  Cmd-W
+    Close                                    Cmd-w
+Menu "Save a copy in" at (333,479) supermenu=Document
+    HyperText Markup Language...             
+    Rich Text Format ...                     
+    Plain Text...                            
+    PostScript...                            
+Menu "(Diagnostics)" at (349,416) supermenu=Document
+    Panel                                    
+    Open HTML file showing SGML source       
+    Open HTML file showing RTF               
+    Dump text format to standard out         Cmd-?
+    Turn console trace on                    Cmd-+
+    Turn console trace off                   Cmd--
+    Item                                     
+Menu "Find" at (122,459) supermenu=WorldWideWeb
+    Find Panel...                            Cmd-f
+    Find Next                                Cmd-g
+    Find Previous                            Cmd-d
+    Enter Selection                          Cmd-e
+    Jump to Selection                        Cmd-j
+Menu "Links" at (126,396) supermenu=WorldWideWeb
+    Mark all                                 Cmd-A
+    Mark selection                           Cmd-M
+    Link to marked                           Cmd-L
+    Link to file...                          
+    Link to New                              Cmd-N
+    Follow link                              Cmd-j
+    Unlink                                   Cmd-Z
+    Help                                     
+Menu "Style" at (122,319) supermenu=WorldWideWeb
+    Copy style                               Cmd-1
+    Apply style                              Cmd-2
+    Glossary                                 
+    List                                     
+    Example                                  
+    Address                                  
+    Normal                                   
+    Heading 1                                Cmd-!
+    Heading 2                                Cmd-@
+    Heading 3                                Cmd-#
+    Heading 4                                Cmd-$
+    Panel...                                 
+Menu "Windows" at (119,507) supermenu=WorldWideWeb
+    Arrange in Front                         
+    Miniaturize Window                       Cmd-m
+    Close Window                             Cmd-w
+Menu "Services" at (134,600) supermenu=WorldWideWeb
+Menu "Find" at (538,349) supermenu=Edit
+    Find Panel...                            Cmd-f
+    Find Next                                Cmd-g
+    Find Previous                            Cmd-d
+    Enter Selection                          Cmd-e
+    Jump To Selection                        Cmd-j
+
+=== WINDOWS ===
+
+Window "Accessories" class=Window frame=(153, 590, 235, 166) style=1 backing=1 mask=0
+  View @"Accessories" (1, 1, 235, 166)
+    Box @"Accessories" (12, 86, 202, 71)
+      View @"Accessories" (7, 7, 188, 57)
+        Matrix["HyperText", "Rich Text", "Plain Text"] @"Accessories" (109, 2, 79, 53)
+        TextField "Save file as:" @"Accessories" (0, 20, 110, 21)
+    Box "Margins on Paper" @"Accessories" (8, 15, 213, 68)
+      View @"Accessories" (7, 7, 199, 45)
+        Form["Left:", "Right:"] @"Accessories" (0, 0, 93, 45)
+        Form["Top:", "Bottom:"] @"Accessories" (96, 0, 103, 45)
+
+Window "Using the navigation Commands" class=Panel frame=(286, 5, 376, 264) style=1 backing=2 mask=1
+  View @"Using the navigation Commands" (1, 1, 376, 264)
+    TextField "The navigation buttons allow you to navigate through the Hypertext web as a tree. The "Backup" button takes you back the way you came,  to the text which you selected to get to where you are. You can use it repeatedly to retrace your steps back to the first link you followed.
+
+Using the "Next" button is like using "BackUp" and then selecting the next refernece after the one you took. For example, if you selected one of a list of references, then using "Next" will take you to the next of those.
+
+The "Previous" button works in a similar way to "Next", but goes to the previous reference.
+
+The "Home" button reselects the original page which you get when you started the browser in the first place." @"Using the navigation Commands" (13, 16, 347, 240)
+
+Window "Making a new Document" class=Panel frame=(296, 422, 376, 227) style=1 backing=2 mask=1
+  View @"Making a new Document" (1, 1, 376, 227)
+    TextField "You can just create a new hypertext document with Command/n, but it's better to make a reference to it and link that reference to it as you make it, using Command/N. This ensures that you can always find the document again. 
+
+ Go to your personal notebook, for instance, and add some text describing the new thing you are going to create. Then select that text and use "Link to New" .  Later on, you can add and delete links so that your new node is linked to other things to which it is relevant." @"Making a new Document" (23, 51, 325, 165)
+    Button "Making links" @"Making a new Document" (93, 13, 81, 24)
+    TextField "See also:" @"Making a new Document" (30, 20, 58, 15)
+
+Window "Info" class=Panel frame=(337, 339, 472, 448) style=1 backing=2 mask=1
+  View @"Info" (1, 1, 472, 448)
+    TextField "HyperMedia Browser/Editor" @"Info" (122, 415, 236, 21)
+    TextField " Version 0.15
+Beta only" @"Info" (379, 410, 93, 26)
+    TextField "by Tim Berners-Lee" @"Info" (332, 349, 133, 18)
+    TextField "Copyright 1990,91, CERN.   Distribution restricted: ask for terms.  TEST VERSION ONLY" @"Info" (10, 328, 432, 13)
+    Box "Box" @"Info" (2, 344, 470, 2)
+      View @"Info" (2, 2, 466, 0)
+    TextField "An excercise in global information availability" @"Info" (121, 367, 208, 36)
+    TextField "HyperText:   Text which is not constrained to be linear.
+HyperMedia: Information which is not constrained linear... or to be text." @"Info" (5, 281, 463, 36)
+    ScrollView @"Info" (25, 27, 418, 231)
+      ClipView @"Info" (21, 2, 395, 227)
+        Text @"Info" (0, 0, 395, 330)
+      Scroller @"Info" (2, 2, 18, 227)
+
+Window "Style editor" class=Panel frame=(2, 1, 342, 406) style=1 backing=2 mask=1
+  View @"Style editor" (1, 1, 342, 406)
+    Button "Apply style to selection" @"Style editor" (4, 293, 166, 40)
+    Button "Find unstyled text" @"Style editor" (4, 228, 168, 24)
+    Button "Apply style to all similar text" @"Style editor" (4, 262, 167, 24)
+    Button "style of selection" @"Style editor" (120, 342, 105, 24)
+    Button ">>" @"Style editor" (232, 342, 56, 24)
+    Button "<<" @"Style editor" (56, 342, 56, 24)
+    Form["Style name:"] @"Style editor" (8, 374, 283, 21)
+    Box "Style sheet" @"Style editor" (208, 242, 104, 80)
+      View @"Style editor" (7, 7, 90, 57)
+    Button "Open" @"Style editor" (226, 281, 72, 24)
+    Button "Save as..." @"Style editor" (226, 252, 72, 24)
+    Box "Format" @"Style editor" (1, 14, 324, 209)
+      View @"Style editor" (7, 7, 310, 186)
+        Form["First line indent:", "Successive indent:", "Font:", "Point Size:", "SGML tag:"] @"Style editor" (0, 59, 216, 127)
+        Form["Tabs:"] @"Style editor" (0, 3, 305, 45)
+        Button "Set" @"Style editor" (232, 59, 72, 24)
+
+Window "Navigation" class=Panel frame=(76, 183, 206, 85) style=1 backing=2 mask=1
+  View @"Navigation" (1, 1, 206, 85)
+    Button "< Previous" @"Navigation" (6, 41, 71, 38)
+    Button "Home" @"Navigation" (9, 10, 56, 22)
+    Button "Back up" @"Navigation" (82, 41, 57, 38)
+    Button "Next >" @"Navigation" (144, 41, 56, 38)
+    Button "Help" @"Navigation" (152, 8, 48, 24)
+
+Window "Other document" class=Panel frame=(579, 571, 473, 129) style=1 backing=2 mask=1
+  View @"Other document" (1, 1, 473, 129)
+    Box "Diagnostics only" @"Other document" (108, 8, 167, 57)
+      View @"Other document" (7, 7, 153, 34)
+    Form["Address :"] @"Other document" (28, 65, 414, 32)
+    Button "Open" @"Other document" (366, 21, 96, 36)
+    Button "Open showing source" @"Other document" (130, 20, 135, 24)
+    Button "Link selection to" @"Other document" (3, 102, 102, 25)
+
+Window "Making links" class=Panel frame=(330, 339, 376, 282) style=1 backing=2 mask=1
+  View @"Making links" (1, 1, 376, 282)
+    TextField "If you want to link one peice of text to another, whether they are in the same hypertext document or not, you follow the same procedure.
+
+First, mark the thing which the link will lead to. You can mark a whole document with "Mark All", or you can mark just a selection with "Mark Selection".
+
+Once you have marked something, you can select another area and use "Link to marked".   You can link many things to the same marked area without having to mark it again. It stays marked until you mark something else.
+
+From then on, whenever you double click on the linked text, you will jump across the link.
+" @"Making links" (16, 27, 343, 240)
+    TextField "See also:" @"Making links" (26, 14, 58, 15)
+    Button "Making a new document" @"Making links" (88, 9, 148, 24)
+
+Window "Document Inspector" class=Panel frame=(579, 362, 473, 339) style=1 backing=2 mask=1
+  View @"Document Inspector" (1, 1, 473, 339)
+    Form["Title:"] @"Document Inspector" (27, 280, 439, 45)
+    Button "Set" @"Document Inspector" (383, 252, 82, 24)
+    TextField @"Document Inspector" (63, 202, 400, 36)
+    TextField "Address:" @"Document Inspector" (5, 216, 58, 15)
+    Form["Address :"] @"Document Inspector" (1, 71, 465, 32)
+    TextField "Other document" @"Document Inspector" (55, 132, 144, 22)
+    Button "Link selection to other document" @"Document Inspector" (270, 174, 192, 20)
+    TextField "______________________________________________" @"Document Inspector" (1, 161, 471, 22)
+    Button "Open" @"Document Inspector" (370, 30, 96, 36)
+    Button "Copy" @"Document Inspector" (6, 101, 41, 24)
+    Button "Inspect selected link" @"Document Inspector" (63, 174, 125, 20)
+    Box "Diagnostics only" @"Document Inspector" (60, 11, 167, 57)
+      View @"Document Inspector" (7, 7, 153, 34)
+    Button "Open showing source" @"Document Inspector" (76, 23, 135, 24)
+
+Window "Index Search" class=Panel frame=(579, 724, 473, 80) style=1 backing=2 mask=0
+  View @"Index Search" (1, 1, 473, 80)
+    Form["words:"] @"Index Search" (16, 43, 448, 30)
+    Button "Search" @"Index Search" (357, 6, 107, 33)
+
+=== CONNECTIONS ===
+outlet  Custom<Application>                                     -> Custom<HyperManager>                     delegate
+outlet  Form["First line indent:", "Successive indent:", "Font:", "Point Size:", "SGML tag:"] @"Style editor" -> Form["Tabs:"] @"Style editor"            nextText
+outlet  Form["Left:", "Right:"] @"Accessories"                  -> Form["Top:", "Bottom:"] @"Accessories"   nextText
+outlet  Custom<WWWPageLayout>                                   -> Box "Margins on Paper" @"Accessories"    accessoryView
+outlet  Custom<WWWPageLayout>                                   -> FormCell "Left:" @"Accessories"          leftMargin
+outlet  Custom<WWWPageLayout>                                   -> FormCell "Bottom:" @"Accessories"        bottomMargin
+outlet  Custom<WWWPageLayout>                                   -> FormCell "Right:" @"Accessories"         rightMargin
+outlet  Custom<WWWPageLayout>                                   -> FormCell "Top:" @"Accessories"           topMargin
+outlet  Custom<WWWPageLayout>                                   -> Form["Left:", "Right:"] @"Accessories"   sideForm
+outlet  Custom<WWWPageLayout>                                   -> Form["Top:", "Bottom:"] @"Accessories"   topBotForm
+outlet  Custom<TcpAccess>                                       -> Custom<HyperManager>                     manager
+outlet  Custom<FileAccess>                                      -> Custom<HyperManager>                     manager
+outlet  Custom<NewsAccess>                                      -> Custom<HyperManager>                     manager
+outlet  Custom<HyperManager>                                    -> Form["words:"] @"Index Search"           keywords
+outlet  Custom<StyleToy>                                        -> Form["Style name:"] @"Style editor"      NameForm
+outlet  Custom<StyleToy>                                        -> Form["First line indent:", "Successive indent:", "Font:", "Point Size:", "SGML tag:"] @"Style editor" ParameterForm
+outlet  Custom<StyleToy>                                        -> Window "Style editor"                    StylePanel
+outlet  Custom<StyleToy>                                        -> Form["Tabs:"] @"Style editor"            TabForm
+outlet  Custom<TextToy>                                         -> Window "Index Search"                    SearchWindow
+outlet  Window "Index Search"                                   -> Custom<HyperManager>                     delegate
+outlet  Window "Other document"                                 -> Custom<HyperManager>                     delegate
+outlet  Custom<HyperManager>                                    -> Form["Title:"] @"Document Inspector"     titleString
+outlet  Custom<HyperManager>                                    -> TextField @"Document Inspector"          addressString
+outlet  Custom<HyperManager>                                    -> Form["Address :"] @"Document Inspector"  openString
+action  MenuCell "Hide"                                         -> Custom<Application>                      hide:
+action  MenuCell "Quit"                                         -> Custom<Application>                      terminate:
+action  MenuCell "Close"                                        -> FirstResponder                           performClose:
+action  MenuCell "Miniaturize"                                  -> FirstResponder                           performMiniaturize:
+action  Form["words:"] @"Index Search"                          -> Button "Search" @"Index Search"          performClick:
+action  Button "Making links" @"Making a new Document"          -> Window "Making links"                    makeKeyAndOrderFront:
+action  Button "Making a new document" @"Making links"          -> Window "Making a new Document"           makeKeyAndOrderFront:
+action  MenuCell "Help"                                         -> Window "Making links"                    makeKeyAndOrderFront:
+action  Form["Address :"] @"Other document"                     -> Button "Open" @"Other document"          performClick:
+action  MenuCell "Inspect ..."                                  -> Window "Document Inspector"              makeKeyAndOrderFront:
+action  MenuCell "Panel..."                                     -> Window "Navigation"                      makeKeyAndOrderFront:
+action  Button "Help" @"Navigation"                             -> Window "Using the navigation Commands"   makeKeyAndOrderFront:
+action  MenuCell "Panel..."                                     -> Window "Style editor"                    makeKeyAndOrderFront:
+action  Button "Search" @"Index Search"                         -> Custom<HyperManager>                     search:
+action  MenuCell "Mark all "                                    -> Custom<TextToy>                          markAll:
+action  MenuCell "Mark selection "                              -> Custom<TextToy>                          markSelected:
+action  MenuCell "Link to marked"                               -> Custom<TextToy>                          linkToMark:
+action  MenuCell "Follow link"                                  -> Custom<TextToy>                          followLink:
+action  MenuCell "Unlink"                                       -> Custom<TextToy>                          unlink:
+action  MenuCell "Back"                                         -> Custom<HyperManager>                     back:
+action  MenuCell "Next"                                         -> Custom<HyperManager>                     next:
+action  MenuCell "Previous"                                     -> Custom<HyperManager>                     previous:
+action  MenuCell "Home"                                         -> Custom<HyperManager>                     goHome:
+action  MenuCell "Open file..."                                 -> Custom<FileAccess>                       open:
+action  MenuCell "New file..."                                  -> Custom<FileAccess>                       makeNew:
+action  MenuCell "Link to New"                                  -> Custom<FileAccess>                       linkToNew:
+action  MenuCell "Save"                                         -> Custom<HyperManager>                     save:
+action  MenuCell "Save all edited windows"                      -> Custom<HyperManager>                     saveAll:
+action  MenuCell "HyperText Markup Language..."                 -> Custom<FileAccess>                       saveAs:
+action  MenuCell "Rich Text Format ..."                         -> Custom<FileAccess>                       saveAsRichText:
+action  MenuCell "Plain Text..."                                -> Custom<FileAccess>                       saveAsPlainText:
+action  MenuCell "Open HTML file showing SGML source"           -> Custom<FileAccess>                       openSGML:
+action  MenuCell "Open HTML file showing RTF"                   -> Custom<FileAccess>                       openRTF:
+action  MenuCell "Dump text format to standard out"             -> Custom<TextToy>                          dump:
+action  MenuCell "Turn console trace on"                        -> Custom<HyperManager>                     traceOn:
+action  MenuCell "Turn console trace off"                       -> Custom<HyperManager>                     traceOff:
+action  MenuCell "Open master template document"                -> Custom<HyperManager>                     goToBlank:
+action  MenuCell "Close all other windows"                      -> Custom<HyperManager>                     closeOthers:
+action  MenuCell "Print..."                                     -> Custom<HyperManager>                     print:
+action  MenuCell "Page layout..."                               -> Custom<HyperManager>                     runPagelayout:
+action  MenuCell "Copy style"                                   -> Custom<StyleToy>                         PickButton:
+action  MenuCell "Apply style"                                  -> Custom<StyleToy>                         ApplyButton:
+action  Button "Apply style to selection" @"Style editor"       -> Custom<StyleToy>                         ApplyButton:
+action  Button "<<" @"Style editor"                             -> Custom<StyleToy>                         PreviousButton:
+action  Button "style of selection" @"Style editor"             -> Custom<StyleToy>                         PickButton:
+action  Button ">>" @"Style editor"                             -> Custom<StyleToy>                         NextButton:
+action  Button "Apply style to all similar text" @"Style editor" -> Custom<StyleToy>                         ApplyToSimilar:
+action  Button "Find unstyled text" @"Style editor"             -> Custom<StyleToy>                         FindUnstyledButton:
+action  Button "Open" @"Style editor"                           -> Custom<StyleToy>                         open:
+action  Button "Save as..." @"Style editor"                     -> Custom<StyleToy>                         saveAs:
+action  MenuCell "Link to file..."                              -> Custom<FileAccess>                       linkToFile:
+action  MenuCell "Miniaturize Window"                           -> FirstResponder                           performMiniaturize:
+action  MenuCell "Close Window"                                 -> FirstResponder                           performClose:
+action  MenuCell "Arrange in Front"                             -> FirstResponder                           arrangeInFront:
+action  MenuCell "Cut"                                          -> FirstResponder                           cut:
+action  MenuCell "Copy"                                         -> FirstResponder                           copy:
+action  MenuCell "Paste"                                        -> FirstResponder                           paste:
+action  MenuCell "Select All"                                   -> FirstResponder                           selectAll:
+action  MenuCell "Delete"                                       -> FirstResponder                           delete:
+action  MenuCell "Spelling..."                                  -> FirstResponder                           showGuessPanel:
+action  MenuCell "Check Spelling"                               -> FirstResponder                           checkSpelling:
+action  MenuCell "PostScript..."                                -> Custom<HyperManager>                     print:
+action  Button "Open" @"Other document"                         -> Custom<HyperManager>                     open:
+action  Button "Open showing source" @"Other document"          -> Custom<HyperManager>                     openSGML:
+action  MenuCell "Item"                                         -> Window "Info"                            makeKeyAndOrderFront:
+action  MenuCell "Help..."                                      -> Custom<HyperManager>                     help:
+action  MenuCell "Panel..."                                     -> Window "Info"                            makeKeyAndOrderFront:
+action  Button "< Previous" @"Navigation"                       -> Custom<HyperManager>                     previous:
+action  Button "Back up" @"Navigation"                          -> Custom<HyperManager>                     back:
+action  Button "Next >" @"Navigation"                           -> Custom<HyperManager>                     next:
+action  Button "Home" @"Navigation"                             -> Custom<HyperManager>                     goHome:
+action  Form["Title:"] @"Document Inspector"                    -> Button "Set" @"Document Inspector"       performClick:
+action  Button "Set" @"Document Inspector"                      -> Custom<HyperManager>                     setTitle:
+action  Button "Link selection to" @"Other document"            -> Custom<HyperManager>                     linkToString:
+action  Button "Open" @"Document Inspector"                     -> Custom<HyperManager>                     open:
+action  Button "Open showing source" @"Document Inspector"      -> Custom<HyperManager>                     openSGML:
+action  Form["Address :"] @"Document Inspector"                 -> Button "Open" @"Document Inspector"      performClick:
+action  Button "Link selection to other document" @"Document Inspector" -> Custom<HyperManager>                     linkToString:
+action  MenuCell "Open given document address"                  -> Window "Document Inspector"              makeKeyAndOrderFront:
+action  Button "Copy" @"Document Inspector"                     -> Custom<HyperManager>                     copyAddress:
+action  Button "Inspect selected link" @"Document Inspector"    -> Custom<HyperManager>                     inspectLink:
+action  MenuCell "Normal"                                       -> Custom<StyleToy>                         normalButton:
+action  MenuCell "Example"                                      -> Custom<StyleToy>                         exampleButton:
+action  MenuCell "Address"                                      -> Custom<StyleToy>                         addressButton:
+action  MenuCell "List"                                         -> Custom<StyleToy>                         listButton:
+action  MenuCell "Glossary"                                     -> Custom<StyleToy>                         glossaryButton:
+action  MenuCell "Heading 1"                                    -> Custom<StyleToy>                         heading1Button:
+action  MenuCell "Heading 2"                                    -> Custom<StyleToy>                         heading2Button:
+action  MenuCell "Heading 3"                                    -> Custom<StyleToy>                         heading3Button:
+action  MenuCell "Heading 4"                                    -> Custom<StyleToy>                         heading4Button:
