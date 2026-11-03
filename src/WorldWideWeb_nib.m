@@ -133,6 +133,7 @@ static NSMenuItem * item(NSMenu * menu, NSString * title, NSString * key,
     NSMenuItem * i = [menu addItemWithTitle:title action:action
 	keyEquivalent:key ? key : @""];
     [i setTarget:target];
+    [i setRepresentedObject:title];		/* TBL's title: see NeXTMenu.m */
     return i;
 }
 
@@ -140,6 +141,7 @@ static NSMenu * submenu(NSMenu * menu, NSString * title)
 {
     NSMenuItem * i = [menu addItemWithTitle:title action:NULL keyEquivalent:@""];
     NSMenu * m = [[[NSMenu alloc] initWithTitle:title] autorelease];
+    [i setRepresentedObject:title];
     [i setSubmenu:m];
     return m;
 }

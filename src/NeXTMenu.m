@@ -29,6 +29,12 @@ static NSColor * gray(CGFloat w)	{ return [NSColor colorWithCalibratedWhite:w al
 
 static NSMutableArray * allPanels;	/* For refreshing the enabled state */
 
+static NSString * labelOf(NSMenuItem * i)
+{
+    id t = [i representedObject];
+    return [t isKindOfClass:[NSString class]] ? t : [i title];
+}
+
 
 @interface NXMenuPanel : NSPanel
 {
@@ -59,11 +65,21 @@ static NSMutableArray * allPanels;	/* For refreshing the enabled state */
     NSDictionary * font = @{ NSFontAttributeName: menuFont() };
     NSRect frame;
 
+//	AppKit adds items of its own to some menus (Writing Tools, Emoji &
+//	Symbols and so on) and renames others ("Spelling..."). The nib code
+//	puts TBL's title in each item's representedObject, so we show only
+//	his items, with his titles. A menu with none of his items (Services)
+//	is shown as it is.
+
+    BOOL his = NO;
+    for (NSMenuItem * i in menuItems)
+	if ([[i representedObject] isKindOfClass:[NSString class]]) his = YES;
     for (NSMenuItem * i in menuItems) {
 	CGFloat w;
 	if ([i isSeparatorItem] || [i isHidden]) continue;
+	if (his && ![[i representedObject] isKindOfClass:[NSString class]]) continue;
 	[kept addObject:i];
-	w = PAD + [[i title] sizeWithAttributes:font].width + PAD;
+	w = PAD + [labelOf(i) sizeWithAttributes:font].width + PAD;
 	if ([[i keyEquivalent] length])
 	    w += [[i keyEquivalent] sizeWithAttributes:font].width + 2 * PAD;
 	if ([i hasSubmenu]) w += ARROW_SPACE;
@@ -108,9 +124,14 @@ static NSMutableArray * allPanels;	/* For refreshing the enabled state */
 {
     NSNumber * key = @(row);
     NXMenuPanel * p = [children objectForKey:key];
+    if (p && !p->tornOff && ![p isVisible]) {	/* Rebuild: the items may have changed */
+	[allPanels removeObject:p];		/* (AppKit fills Services in later) */
+	[children removeObjectForKey:key];
+	p = nil;
+    }
     if (!p) {
 	NSMenuItem * i = [items objectAtIndex:row];
-	p = [[[NXMenuPanel alloc] initWithTitle:[i title]
+	p = [[[NXMenuPanel alloc] initWithTitle:labelOf(i)
 	    items:[[i submenu] itemArray] parent:self] autorelease];
 	[children setObject:p forKey:key];
     }
@@ -240,7 +261,7 @@ static void bevel(NSRect r, BOOL raised)
 	[gray(lit ? 1.0 : 2.0/3.0) set];
 	NSRectFill(r);
 	bevel(r, YES);
-	[[i title] drawAtPoint:NSMakePoint(PAD, NSMinY(r) + 3) withAttributes:a];
+	[labelOf(i) drawAtPoint:NSMakePoint(PAD, NSMinY(r) + 3) withAttributes:a];
 	if ([i hasSubmenu]) {			/* The NXmenuArrow */
 	    NSBezierPath * t = [NSBezierPath bezierPath];
 	    CGFloat mx = right - 3, my = NSMidY(r) - 0.5;
