@@ -72,10 +72,17 @@ modern Mac.
   valid UTF-8 is now read as UTF-8, and any other byte is read in the NeXT
   set, so the original documents look as they did. Documents are saved as
   UTF-8.
-- **Menus.** TBL's main menu, a vertical panel at the top left of the NeXT
-  screen, becomes the menu bar. Info, Print, Page layout, Services, Hide and
-  Quit go in the application menu, and each submenu becomes a menu of the
-  bar, in his order, with his titles and key equivalents.
+- **Menus.** TBL's main menu was a vertical panel at the top left of the
+  NeXT screen. By default the port draws it that way too (`src/NeXTMenu.m`,
+  an addition): a NeXT-style panel in his order, whose submenus open beside
+  it and tear off when you drag them by the title bar. The menu bar hides
+  itself while the app is active. The same menu is also in the menu bar:
+  Info, Print, Page layout, Services, Hide and Quit in the application
+  menu, and each submenu as a menu of the bar. To use only the menu bar:
+
+  ```bash
+  defaults write ch.cern.info.WorldWideWeb NeXTMenu NO
+  ```
 - **Find.** In the nib, the items of the Find menu have no actions. Here
   they drive the text view's find bar. "Jump to Selection" no longer has
   Command-j, because "Follow link" also uses it.

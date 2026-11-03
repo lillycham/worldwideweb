@@ -25,6 +25,7 @@
 #import "StyleToy.h"
 #import "WWWPageLayout.h"
 #import "HTUtils.h"
+#import "NeXTMenu.h"
 
 extern int WWW_TraceFlag;
 
@@ -566,5 +567,22 @@ void WWWLoadMainNib(void)
 	[NSApp setWindowsMenu:m];
 
 	[NSApp setMainMenu:bar];
+
+//	Port addition: TBL's main menu as a NeXT menu panel too, in his order
+//	(see NeXTMenu.m). The NeXTMenu default turns it off.
+
+	[[NSUserDefaults standardUserDefaults] registerDefaults:@{ @"NeXTMenu": @YES }];
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"NeXTMenu"]) {
+	    NSMutableArray * main = [NSMutableArray array];
+	    [main addObject:[app itemWithTitle:@"Info"]];
+	    for (NSString * t in @[@"Navigate", @"Document", @"Edit", @"Find", @"Links", @"Style"])
+		[main addObject:[bar itemWithTitle:t]];
+	    [main addObject:[app itemWithTitle:@"Print..."]];
+	    [main addObject:[app itemWithTitle:@"Page layout..."]];
+	    [main addObject:[bar itemWithTitle:@"Windows"]];
+	    for (NSString * t in @[@"Services", @"Hide", @"Quit"])
+		[main addObject:[app itemWithTitle:t]];
+	    NXMenuShowMain(@"WorldWideWeb", main);
+	}
     }
 }

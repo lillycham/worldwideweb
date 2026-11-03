@@ -34,7 +34,7 @@ CFILES	= HTAccess.c HTFile.c HTFTP.c HTParse.c HTString.c HTTCP.c HTTP.c
 MFILES	= Anchor.m FileAccess.m HTStyle.m HyperAccess.m HyperManager.m \
 	  HyperText.m NewsAccess.m StyleToy.m TcpAccess.m TextToy.m \
 	  WWWPageLayout.m WorldWideWeb_main.m \
-	  WorldWideWeb_nib.m compat/NeXTCompat.m compat/PageLayout.m
+	  WorldWideWeb_nib.m NeXTMenu.m compat/NeXTCompat.m compat/PageLayout.m
 
 OBJS	= $(addprefix build/obj/,$(CFILES:.c=.o) $(notdir $(MFILES:.m=.o)))
 
@@ -103,3 +103,12 @@ test: build/htmltest
 	build/htmltest -w $(RES)/default.html $(RES)/help.html $(RES)/blank.html
 
 .PHONY: test
+
+# Render the NeXT menu panels to PNG files in build/ (opens no windows).
+build/menushot: tests/menushot.m src/NeXTMenu.m src/NeXTMenu.h | build/obj
+	$(CC) $(ARCHS) -mmacosx-version-min=11.0 -fno-objc-arc -w -Isrc -framework Cocoa -o $@ $<
+
+menushot: build/menushot
+	build/menushot build
+
+.PHONY: menushot
