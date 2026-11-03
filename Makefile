@@ -112,3 +112,12 @@ menushot: build/menushot
 	build/menushot build
 
 .PHONY: menushot
+
+# Headless test of TBL's (active mode) FTP client.
+build/ftptest: tests/ftptest.c build/obj/HTFTP.o build/obj/HTParse.o build/obj/HTTCP.o build/obj/HTString.o
+	$(CC) $(ARCHS) -mmacosx-version-min=11.0 -DNeXT -Isrc/compat -Isrc -w -o $@ $^
+
+ftptest: build/ftptest
+	build/ftptest file://ftp.gnu.org/README | head -5
+
+.PHONY: ftptest

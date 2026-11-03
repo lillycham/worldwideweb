@@ -108,8 +108,10 @@ modern Mac.
 
 ## Not tested yet
 
-- News (NNTP) and FTP access. Both compile, but I have not tested them
-  against a server.
-- Printing and the page layout panel.
-- Editing, linking and saving in the application. The headless test checks
-  that the parser and the HTML writer round-trip a page.
+- The page layout panel.
+
+Tested by hand: browsing, editing, linking, saving, printing, News (with
+`NewsHost` set to `news.gmane.io`) and FTP. TBL's FTP client uses active
+mode: it sends the server a `PORT` command with its own address, and the
+server connects back. Behind NAT that works only if the router rewrites
+`PORT` commands, as many home routers do. `make ftptest` checks it.
