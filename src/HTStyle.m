@@ -113,7 +113,7 @@ HTStyle * HTStyleWrite(HTStyle * style, NXStream * stream)
     NXPrintf(stream, "%s %i %s %f %i\n",
 	style->SGMLTag,
 	style->SGMLType,
-	style->font ? [style->font name] : NONE_STRING,
+	NXFontName(style->font),		/* Port: "(None)" if no font */
 	style->fontSize,
 	p!=0);
 
@@ -148,7 +148,7 @@ HTStyle * HTStyleDump(HTStyle * style)
 	style->name,
 	style->SGMLTag,
 	style->SGMLType,
-	[style->font name],
+	NXFontName(style->font),
 	style->fontSize);
     if (p) {
         printf(
@@ -214,12 +214,14 @@ HTStyle * HTStyleForRun(HTStyleSheet *self, NXRun *run)
     HTStyle * best = 0;
     int	bestMatch = 0;
     NXTextStyle * rp = run->paraStyle;
+    // Port: text pasted from other applications has no paragraph style
+    // (on NeXT it always had one), so rp may be 0 here.
     for (scan=self->styles; scan; scan=scan->next)
         if (scan->paragraph == run->paraStyle) return scan;	/* Exact */
 
     for (scan=self->styles; scan; scan=scan->next){
     	NXTextStyle * sp = scan->paragraph;
-    	if (sp) {
+    	if (sp && rp) {
 	    int match = 0;
 	    if (sp->indent1st ==	rp->indent1st)	match = match+1;
 	    if (sp->indent2nd ==	rp->indent2nd)	match = match+2;
@@ -233,6 +235,7 @@ HTStyle * HTStyleForRun(HTStyleSheet *self, NXRun *run)
 	    }
 	}
     }
+    if (!rp) best = HTStyleNamed(self, "Normal");	// Port: see above
     if (TRACE) printf("HTStyleForRun: Best match for style is %i out of 18\n",
     			 bestMatch);
     return best;

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Info</key>
+	<array>
+		<string>Copyright 1990,91, CERN.   Distribution restricted: ask for terms.  TEST VERSION ONLY</string>
+		<string>HyperText:   Text which is not constrained to be linear.
+HyperMedia: Information which is not constrained linear... or to be text.</string>
+	</array>
+	<key>Making a new Document</key>
+	<array>
+		<string>You can just create a new hypertext document with Command/n, but it's better to make a reference to it and link that reference to it as you make it, using Command/N. This ensures that you can always find the document again. 
+
+ Go to your personal notebook, for instance, and add some text describing the new thing you are going to create. Then select that text and use "Link to New" .  Later on, you can add and delete links so that your new node is linked to other things to which it is relevant.</string>
+	</array>
+	<key>Making links</key>
+	<array>
+		<string>If you want to link one peice of text to another, whether they are in the same hypertext document or not, you follow the same procedure.
+
+First, mark the thing which the link will lead to. You can mark a whole document with "Mark All", or you can mark just a selection with "Mark Selection".
+
+Once you have marked something, you can select another area and use "Link to marked".   You can link many things to the same marked area without having to mark it again. It stays marked until you mark something else.
+
+From then on, whenever you double click on the linked text, you will jump across the link.
+</string>
+	</array>
+	<key>Using the navigation Commands</key>
+	<array>
+		<string>The navigation buttons allow you to navigate through the Hypertext web as a tree. The "Backup" button takes you back the way you came,  to the text which you selected to get to where you are. You can use it repeatedly to retrace your steps back to the first link you followed.
+
+Using the "Next" button is like using "BackUp" and then selecting the next refernece after the one you took. For example, if you selected one of a list of references, then using "Next" will take you to the next of those.
+
+The "Previous" button works in a similar way to "Next", but goes to the previous reference.
+
+The "Home" button reselects the original page which you get when you started the browser in the first place.</string>
+	</array>
+</dict>
+</plist>

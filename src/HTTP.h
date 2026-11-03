@@ -22,3 +22,6 @@ extern int HTTP_Get(const char * arg);
 #else
 extern int HTTP_Get();
 #endif
+
+/*	Port: send HTTP/0.9 (TBL's original) instead of HTTP/1.0. See HTTP.c. */
+extern int HTTP_Version09;

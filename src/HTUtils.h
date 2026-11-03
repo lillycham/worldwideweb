@@ -141,8 +141,13 @@
 #define BOOLEAN_DEFINED
 #endif
 
+/* Port: Objective-C has its own BOOL, YES and NO (BOOL is not a macro, so
+** the #ifndef below cannot see it), and mixing them with these breaks the
+** method signatures. */
+#ifndef __OBJC__
 #ifndef BOOL
 #define BOOL BOOLEAN
+#endif
 #endif
 #ifndef YES
 #define YES (BOOLEAN)1

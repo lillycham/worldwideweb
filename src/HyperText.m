@@ -45,11 +45,10 @@ static HyperText * slot[SLOTS];			/* Ids of HT objects taking them */
 #define MIN_WIDTH 200.0
 
 static HyperText * HT;		/* Global pointer to self to allow C mixing */
-+initialize
++ (void)initialize		// Port: +initialize returns nothing now
 {
     int i;
     for (i=0; i<SLOTS; i++) slot[i] = 0;
-    return [super initialize];
 }
 
 //	Get Application page layout's Page Width
@@ -81,21 +80,22 @@ static float page_width()
 + newAnchor:(Anchor *)anAnchor Server:(id)aServer
 {
     NXRect aFrame = {{0.0, 0.0}, {page_width(), NICE_HEIGHT}};
-    
-    self = [super newFrame:&aFrame];
-    if (TRACE) printf("New node, server is %i\n", aServer);
+    HyperText * me;		// Port: was self, which a class method cannot use for ivars
 
-    nextAnchorNumber = 0;
-    protection = 0;		// Can do anything
-    format = WWW_HTML;		// By default
-    [self setMonoFont: NO];	// By default
-    theRuns->chunk.growby = 16 * sizeof(theRuns->runs[0]); //  efficiency
+    me = [[self alloc] initFrame:&aFrame];
+    if (TRACE) printf("New node, server is %p\n", aServer);
 
-    server = (HyperAccess *)aServer;
-    [self setDelegate:aServer];			/* For changes */
-    nodeAnchor= anAnchor;
-    [nodeAnchor setNode:self];
-    return self;
+    me->nextAnchorNumber = 0;
+    me->protection = 0;		// Can do anything
+    me->format = WWW_HTML;		// By default
+    [me setMonoFont: NO];	// By default
+    me->theRuns->chunk.growby = 16 * sizeof(me->theRuns->runs[0]); //  efficiency
+
+    me->server = (HyperAccess *)aServer;
+    [me setDelegate:aServer];			/* For changes */
+    me->nodeAnchor= anAnchor;
+    [me->nodeAnchor setNode:me];
+    return me;
 }
 
 //			Instance Methods
@@ -107,8 +107,16 @@ static float page_width()
 - free
 {
     slot[slotNumber] = 0;	//	Allow slot to be reused
-    [nodeAnchor setNode:nil];	// 	Invalidate the node    
+    [nodeAnchor setNode:nil];	// 	Invalidate the node
     return [super free];
+}
+
+//	Port: on NeXT, closing a window freed it and the views in it, so -free
+//	above was called then. AppKit releases the window when it closes, and
+//	tells us first.
+- (void)windowWillClose:(NSNotification *)notification
+{
+    [self free];
 }
 
 
@@ -131,10 +139,12 @@ static float page_width()
     NXRun * r = theRuns->runs;
     NXTextBlock * block = firstTextBlock;
     
-    printf("Hypertext %i, selected(%i,%i)", self, sp0.cp, spN.cp);
+    NXRect frame = [self frame];	/* Port: was an instance variable */
+
+    printf("Hypertext %p, selected(%i,%i)", self, sp0.cp, spN.cp);
     if (delegate) printf(", has delegate");
     printf(".\n");
-    
+
     printf("    Frame is at (%f, %f, size is (%f, %f)\n",
     	frame.origin.x, frame.origin.y,
     	frame.size.width, frame.size.height);
@@ -148,15 +158,15 @@ static float page_width()
 	    sob = sob + block->chars;
 	    block = block->next;
 	}
-	printf("%5i: %3i of fnt=%i p=%i gy=%3.2f RGB=%i i=%i fl=%x\n",
-	    pos, r->chars, (int)r->font, r->paraStyle,
-	    r->textGray,r->textRGBColor, (int)(r->info),
+	printf("%5i: %3i of fnt=%p p=%p gy=%3.2f RGB=%i i=%p fl=%x\n",
+	    pos, r->chars, r->font, r->paraStyle,
+	    r->textGray,r->textRGBColor, r->info,
 	    *(int*)&(r->rFlags));
 
     }
     r--;	/* Point to run for start of selection */
 
-    printf("\n    Current run:\n\tFont name:\t%s\n", [r->font name]);
+    printf("\n    Current run:\n\tFont name:\t%s\n", NXFontName(r->font));
     {
         NXTextStyle *p = (NXTextStyle *)r->paraStyle;
 	if (!p) {
@@ -196,15 +206,16 @@ static float page_width()
 
     NXRect scroll_frame;
     NXRect old_scroll_frame;
-    NXSize size;
+    NSSize size;
     BOOL scroll_X, scroll_Y;			// Do we need scrollers?
-    
-    ScrollView* scrollview = [window contentView];// Pick up id of ScrollView
+
+    NSWindow * window = [self window];		// Port: was an instance variable
+    NSScrollView * scrollview = [window contentView];// Pick up id of ScrollView
     float paperWidth = page_width();		// Get page layout width
-    
-    
-    [window disableFlushWindow];	// Prevent flashes
-    
+
+
+    [window disableScreenUpdatesUntilFlush];	// Prevent flashes
+
     [self setVertResizable:YES];	// Can change size automatically
     [self setHorizResizable:tFlags.monoFont];
     [self calcLine];			// Wrap text to current text size
@@ -245,18 +256,19 @@ static float page_width()
 
 //	Set up the scroll view and window to match:
 
-    [ScrollView getFrameSize:&scroll_frame.size
-    			forContentSize: &size
-			horizScroller:	scroll_X
-			vertScroller:	scroll_Y
-			borderType: 	NX_LINE];
-			
-    [scrollview setVertScrollerRequired:scroll_Y];
-    [scrollview setHorizScrollerRequired:scroll_X];
+    scroll_frame.size = [NSScrollView frameSizeForContentSize:size
+			horizontalScrollerClass: scroll_X ? [NSScroller class] : nil
+			verticalScrollerClass:	scroll_Y ? [NSScroller class] : nil
+			borderType: 	NSLineBorder
+			controlSize:	NSControlSizeRegular
+			scrollerStyle:	NSScrollerStyleLegacy];
+
+    [scrollview setHasVerticalScroller:scroll_Y];
+    [scrollview setHasHorizontalScroller:scroll_X];
 
 //	Has the frame size changed?
 
-    [scrollview getFrame:&old_scroll_frame];
+    old_scroll_frame = [scrollview frame];
     if ( (old_scroll_frame.size.width != scroll_frame.size.width)
        ||(old_scroll_frame.size.height != scroll_frame.size.height)) {
 
@@ -276,26 +288,23 @@ static float page_width()
 	scroll_frame.origin.y = 185 + NICE_HEIGHT - scroll_frame.size.height
 				    - (slotNumber % 10)   * 20
 				    - ((slotNumber/10)%3)*  3;
-	[Window getFrameRect:&newFrame
-		forContentRect:&scroll_frame
-		style:NX_TITLEDSTYLE];	// Doesn't allow space for resize bar
-	newFrame.origin.y = newFrame.origin.y - 9.0;
-	newFrame.size.height = newFrame.size.height + 9.0; // For resize bar
-	[window placeWindow:&newFrame];	
+	newFrame = [window frameRectForContentRect:scroll_frame];
+	// Port: AppKit windows have no separate resize bar, so the 9 points
+	// TBL added for it are left out.
+	[window setFrame:newFrame display:NO];
 #endif
     }
-    
+
 #ifdef VERSION_1_STRANGENESS
 //	In version 2, the format of the last run is overwritten with the format
 //	of the preceding run!
     {
       NXRect frm;		/* Try this to get over "text strangeness" */
-      [self getFrame:&frm];      
+      [self getFrame:&frm];
       [self renewRuns:NULL text:NULL frame:&frm tag:0];
     }
 #endif
-    [window reenableFlushWindow];
-    [self calcLine];		/* Prevent messy screen */
+    [self measure];		/* Port: was calcLine, see NXText */
     [window display];		/* Ought to clean it up */
     return self;
     
@@ -308,23 +317,27 @@ static float page_width()
 - setupWindow
 {
     NXRect scroll_frame;				// Calculated later
-    NXSize min_size = {300.0,200.0};			// Minimum size of text
-    NXSize max_size = {1.0e30,1.0e30};			// Maximum size of text
-   
-    ScrollView * scrollview;
-    NXSize nice_size = { 0.0, NICE_HEIGHT };		// Guess height
-        
+    NSSize min_size = {300.0,200.0};			// Minimum size of text
+    NSSize max_size = {1.0e30,1.0e30};			// Maximum size of text
+
+    NSScrollView * scrollview;
+    NSWindow * window;				// Port: was an instance variable
+    NSSize nice_size = { 0.0, NICE_HEIGHT };		// Guess height
+
     nice_size.width = page_width();
-    [ScrollView getFrameSize:&scroll_frame.size
-    			forContentSize: &nice_size
-			horizScroller:NO
-			vertScroller:YES
-			borderType: NX_LINE];
+    scroll_frame.size = [NSScrollView frameSizeForContentSize:nice_size
+			horizontalScrollerClass:nil
+			verticalScrollerClass:[NSScroller class]
+			borderType: NSLineBorder
+			controlSize: NSControlSizeRegular
+			scrollerStyle: NSScrollerStyleLegacy];
 
     {
     	int i;	/* Slot address */
 	for(i=0; (i<SLOTS) && slot[i]; i++) ;	/* Find spare slot */
 	if (i=SLOTS) i = (window_sequence = (window_sequence+1) % SLOTS);
+		/* Port note: (i=SLOTS) is always true, so windows simply take
+		** the slots in turn. Kept, as it is how the original behaves. */
 	slot[i] = self;
 	slotNumber = i;
 	scroll_frame.origin.x = 150 + (slotNumber % 10)   * 30
@@ -332,32 +345,37 @@ static float page_width()
 	scroll_frame.origin.y = 185 - (slotNumber % 10)   * 20
 				    - ((slotNumber/10)%3)*  3;
      }
-     
+
  //	Build a window around the text in order to display it.
 
-#define NX_ALLBUTTONS 7  // Fudge -- the followin methos is obsolete in 3.0:    
-    window = [Window newContent:		&scroll_frame
-    				style:		NX_TITLEDSTYLE
-				backing: 	NX_BUFFERED
-				buttonMask:	NX_ALLBUTTONS
-				defer:		NO];		// display now				
+    window = [[NSWindow alloc] initWithContentRect:	scroll_frame
+    			styleMask:	NSWindowStyleMaskTitled
+					| NSWindowStyleMaskClosable
+					| NSWindowStyleMaskMiniaturizable
+					| NSWindowStyleMaskResizable
+			backing: 	NSBackingStoreBuffered
+			defer:		NO];		// display now
+    [window setReleasedWhenClosed:YES];		// As on NeXT
     [window setDelegate:self];			// Get closure warning
-    [window makeKeyAndOrderFront:self];		// Make it visible
-    [window setBackgroundGray: 1.0];		// White seems to be necessary.
-    
-    scrollview = [ScrollView newFrame:&scroll_frame];
-    [scrollview setVertScrollerRequired:YES];
-    [scrollview setHorizScrollerRequired:NO];		// Guess.
-    [[window setContentView:scrollview] free]; 	// Free old view, size new one.
+    [window setBackgroundColor:[NSColor whiteColor]]; // White seems to be necessary.
 
-						
-    [scrollview setDocView:self];
-    [self setOpaque:YES];			// Suggested in the book
+    scrollview = [[[NSScrollView alloc] initWithFrame:scroll_frame] autorelease];
+    [scrollview setBorderType:NSLineBorder];
+    [scrollview setScrollerStyle:NSScrollerStyleLegacy];
+    [scrollview setHasVerticalScroller:YES];
+    [scrollview setHasHorizontalScroller:NO];		// Guess.
+    [window setContentView:scrollview]; 	// Free old view, size new one.
+
+
+    [scrollview setDocumentView:self];
+    [self setDrawsBackground:YES];		// Suggested in the book
     [self setVertResizable:YES];		// Changes size automatically
     [self setHorizResizable:NO];
-    [self setMinSize:&min_size];		// Stop it shrinking to nought
-    [self setMaxSize:&max_size];		// Stop it being chopped when editing
-    [self notifyAncestorWhenFrameChanged: YES]; // Tell scrollview See QA 555
+    [self setAutoresizingMask:NSViewWidthSizable];
+    [self setMinSize:min_size];			// Stop it shrinking to nought
+    [self setMaxSize:max_size];			// Stop it being chopped when editing
+    [window makeKeyAndOrderFront:self];		// Make it visible
+    [window makeFirstResponder:self];
     [window display];				// Maybe we will see it now
     return self;
 }
@@ -425,7 +443,7 @@ static float page_width()
     a = [self anchorSelected];
     if (a) return a;			/* User asked for existing one */
     
-    if ([self isEditable]) [window setDocEdited:YES];
+    if ([self isEditable]) [[self window] setDocEdited:YES];
     else return nil;
 
     a = [self anchor];
@@ -447,7 +465,7 @@ static float page_width()
     
     if (!anAnchor) return nil;			/* Anchor must exist */
     
-    if ([self isEditable]) [window setDocEdited:YES];
+    if ([self isEditable]) [[self window] setDocEdited:YES];
     else return nil;
     
     a = [self anchorSelected];
@@ -478,7 +496,7 @@ static float page_width()
 {
     HTStyle * style = HTStyleNew();
     
-    if ([self isEditable]) [window setDocEdited:YES];
+    if ([self isEditable]) [[self window] setDocEdited:YES];
     else return nil;
     
     style->anchor = CLEAR_POINTER;
@@ -513,13 +531,14 @@ static float page_width()
 	        for (e=s; (e < limit)
 				&&((e+1)->info == (void*)anchor);
 			sor = sor+(e++)->chars);
-    		[window makeKeyAndOrderFront: self];
+    		[[self window] makeKeyAndOrderFront: self];
 		[self setSel:start:sor+e->chars];
 		return [self scrollSelToVisible];
 	    }
     }
     if (TRACE) printf("HT: Anchor has no explicitly related text.\n");
-    return [window makeKeyAndOrderFront: self];
+    [[self window] makeKeyAndOrderFront: self];
+    return self;
 }
 
 
@@ -589,7 +608,8 @@ static float page_width()
 
 - setTitle:(const char *)title
 {
-    return [window setTitle:title];
+    NXSetWindowTitle([self window], title);
+    return self;
 }
 
 
@@ -687,7 +707,7 @@ static BOOL willChange(HTStyle * style, NXRun *r)
         sor = sor+r->chars;
     }
     [self calcLine];
-    [window display];
+    [[self window] display];
     return nil;
 }
 
@@ -706,7 +726,8 @@ static BOOL willChange(HTStyle * style, NXRun *r)
 	    r->textGray =  NX_BLACK;
         sor = sor+r->chars;
     }
-    [window display];
+    [self calcLine];				/* Port: NeXT showed run changes at once */
+    [[self window] display];
     return nil;
 }
 
@@ -720,7 +741,7 @@ static BOOL willChange(HTStyle * style, NXRun *r)
 {
     NXTextBlock * block;
     int sob;
-    unsigned char * p;
+    unichar * p;				/* Port: was unsigned char */
     for(block=firstTextBlock, sob=0; sob+block->chars <=pos; block=block->next)
         sob = sob + block->chars;
     for(p=block->text+(pos-sob)-1; p >= block->text; p--)
@@ -748,7 +769,7 @@ static BOOL willChange(HTStyle * style, NXRun *r)
 {
     NXTextBlock * block;
     int sob;
-    unsigned char * p;
+    unichar * p;				/* Port: was unsigned char */
     BOOL found_newline = NO;
     
     if (pos>=textLength) return textLength;
@@ -841,6 +862,7 @@ BOOL run_match(NXRun* r1, NXRun *r2)
     
     if (start == end) {
         apply(style, &typingRun);		/* Will this work? */
+        [self takeTypingRun];			/* Port: hand it to the text view */
         if (TRACE) printf("Style applied to typing run\n");
 	return nil;				/* Can't operate on nothing */
     }
@@ -962,7 +984,8 @@ BOOL run_match(NXRun* r1, NXRun *r2)
     }
     
     [self calcLine];				/* Update line breaks */
-    return [window display];				/* Update window */
+    [[self window] display];				/* Update window */
+    return self;
 }
 
 
@@ -984,7 +1007,7 @@ BOOL run_match(NXRun* r1, NXRun *r2)
     
     if (!style) return nil;
 
-    if ([self isEditable]) [window setDocEdited:YES];
+    if ([self isEditable]) [[self window] setDocEdited:YES];
     else return nil;
 
     	
@@ -1026,7 +1049,7 @@ BOOL run_match(NXRun* r1, NXRun *r2)
 	}
     }
     [self calcLine];
-    [window display];
+    [[self window] display];
     return self;
 }
 
@@ -1113,15 +1136,18 @@ BOOL run_match(NXRun* r1, NXRun *r2)
 
 //	Prevent closure of edited window without save
 //
-- windowWillClose:sender
+//	Port: NeXT asked the delegate windowWillClose: and cancelled the close
+//	if it returned nil. AppKit asks windowShouldClose: instead.
+//
+- (BOOL)windowShouldClose:sender
 {
     int choice;
-    if (![window isDocEdited]) return self;
+    if (![[self window] isDocEdited]) return YES;
     choice = NXRunAlertPanel("Close", "Save changes to `%s'?",
-    	"Yes", "No", "Don't close", [window title]);
-    if (choice == NX_ALERTALTERNATE) return self;
-    if (choice == NX_ALERTOTHER) return nil;
-    return [server saveNode:self];
+    	"Yes", "No", "Don't close", NXWindowTitle([self window]));
+    if (choice == NX_ALERTALTERNATE) return YES;
+    if (choice == NX_ALERTOTHER) return NO;
+    return [server saveNode:self] != nil;
 }
 
 //	Change configuration as window becomes key window
@@ -1150,8 +1176,8 @@ static HyperText * HT;				/* Pointer to self for C */
 //	Inputting from the text object:
 //	------------------------------
 
-static unsigned char * read_pointer;		/* next character to be read */
-static unsigned char * read_limit;
+static unichar * read_pointer;		/* next character to be read */
+static unichar * read_limit;		/* Port: unichar, was unsigned char */
 static NXTextBlock * read_block;
 
 void start_input()
@@ -1161,9 +1187,9 @@ void start_input()
     read_limit = read_pointer+read_block->chars;
 }
 
-unsigned char next_input_block()
+unichar next_input_block()
 {
-    char c = *read_pointer;
+    unichar c = *read_pointer;
     read_block = read_block->next;
     if (!read_block) read_block = HT->firstTextBlock;	/* @@@ FUDGE */
     read_pointer = read_block->text;
@@ -1182,13 +1208,68 @@ unsigned char next_input_block()
 #define BLOCK_SIZE NX_TEXTPER			/* Match what Text seems to use */
 
 static NXTextBlock 	*write_block;		/* Pointer to block being filled */
-static unsigned char 	*write_pointer;	/* Pointer to next characetr to be written */
-static unsigned char	*write_limit;	/* Pointer to the end of the allocated area*/
+static unichar 	*write_pointer;	/* Pointer to next characetr to be written */
+static unichar	*write_limit;	/* Pointer to the end of the allocated area*/
 static NXRun *		lastRun;	/* Pointer to the run being appended to */
 static int		original_length; /* of text */
 
-#define OUTPUT(c)	{ *write_pointer++ = (c); \
-	if (write_pointer==write_limit) {end_output(); append_start_block(); }}
+void end_output();
+void append_start_block();
+
+/*	Port: from bytes to characters
+**	------------------------------
+**
+**	The NeXT Text object held bytes in the NeXT character set, and OUTPUT
+**	stored each byte of the document as it was. Here the text blocks hold
+**	unichars, and OUTPUT decodes as it goes: a run of bytes which is valid
+**	UTF-8 becomes the character it encodes, and any other byte is read in
+**	the NeXT character set, as before. So the original documents (and the
+**	bullet "\267" in ParseHTML.h) still come out as they did, and modern
+**	UTF-8 pages read correctly too.
+*/
+static unsigned char	utf8_pending[4];	/* Bytes of a partial sequence */
+static int		utf8_have, utf8_need;
+
+static void output_unichar(unichar u)
+{
+    *write_pointer++ = u;
+    if (write_pointer==write_limit) {end_output(); append_start_block(); }
+}
+
+static void output_flush()		/* Give up on a partial sequence */
+{
+    int i;
+    for (i=0; i<utf8_have; i++) output_unichar(NXUnicharForByte(utf8_pending[i]));
+    utf8_have = utf8_need = 0;
+}
+
+static void output_byte(unsigned char b)
+{
+    if (utf8_need) {
+	if ((b & 0xC0) == 0x80) {			/* Continuation byte */
+	    utf8_pending[utf8_have++] = b;
+	    if (utf8_have == utf8_need) {
+		NSString * s = [[NSString alloc] initWithBytes:utf8_pending
+			length:utf8_have encoding:NSUTF8StringEncoding];
+		if (s) {
+		    NSUInteger i;
+		    for (i=0; i<[s length]; i++) output_unichar([s characterAtIndex:i]);
+		    [s release];
+		    utf8_have = utf8_need = 0;
+		} else output_flush();			/* Overlong etc. */
+	    }
+	    return;
+	}
+	output_flush();					/* Not UTF-8 after all */
+    }
+    if (b < 0x80)			output_unichar(b);
+    else if (b >= 0xC2 && b <= 0xDF)	{ utf8_pending[0] = b; utf8_have = 1; utf8_need = 2; }
+    else if (b >= 0xE0 && b <= 0xEF)	{ utf8_pending[0] = b; utf8_have = 1; utf8_need = 3; }
+    else if (b >= 0xF0 && b <= 0xF4)	{ utf8_pending[0] = b; utf8_have = 1; utf8_need = 4; }
+    else				output_unichar(NXUnicharForByte(b));
+}
+
+#define OUTPUT(c)	output_byte((unsigned char)(c))
 #define OUTPUTS(string)	{const char * p; for(p=(string);*p;p++) OUTPUT(*p);}
 #define START_OUTPUT    append_begin()
 #define FINISH_OUTPUT	finish_output()
@@ -1215,7 +1296,7 @@ void append_start_block()
     				HT->theRuns->chunk.used))-1;
     write_block = (NXTextBlock*)malloc(sizeof(*write_block));
     write_block->tbFlags.malloced=0;		/* See comment above */
-    write_block->text = (unsigned char *)malloc(BLOCK_SIZE);
+    write_block->text = (unichar *)malloc(BLOCK_SIZE * sizeof(unichar)); /* Port */
     write_block->chars = 0;			// For completeness: not used.
     write_pointer = write_block->text;
     write_limit = write_pointer + BLOCK_SIZE;
@@ -1270,6 +1351,7 @@ void append_begin()
 //
 void set_style(HTStyle *style)
 {
+    output_flush();			/* Port: see output_byte() */
     if (!style) {
         if (TRACE) printf("set_style: style is null!\n");
 	return;
@@ -1319,13 +1401,15 @@ void end_output()
 
 void finish_output()
 {
-    int size = write_pointer - write_block->text;
-    if (size==0) {
+    int size;
+    output_flush();			/* Port: see output_byte() */
+    size = write_pointer - write_block->text;
+    if (size==0 && write_block->prior) {	/* Port: keep the only block */
         HT->lastTextBlock = write_block->prior;	/* Remove empty text block */
 	write_block->prior->next = 0;
 	free(write_block->text);
 	free(write_block);
-    } else {
+    } else if (size) {
 	end_output();
     }
 
@@ -1337,9 +1421,9 @@ void finish_output()
     
 //	calcLine requires that the last character be a newline!
     {
-        unsigned char * p = HT->lastTextBlock->text +
+        unichar * p = HT->lastTextBlock->text +
 			    HT->lastTextBlock->chars - 1;
-	if (*p != '\n') {
+	if (HT->lastTextBlock->chars && *p != '\n') {	/* Port: chars test */
 	    if (TRACE)
 	    printf(
 	    "HT: Warning: Last character was %i not newline: overwriting!\n",
@@ -1444,11 +1528,10 @@ void loadPlainText()
 // The first click will have set the selection point.  On the second click,
 // we follow a link if possible, otherwise we allow Text to select a word as usual.
 //
-- mouseDown:(NXEvent*)theEvent
+- (void)mouseDown:(NSEvent *)theEvent		// Port: NSEvent, no return value
 {
-    if (theEvent->data.mouse.click != 2) return [super mouseDown:theEvent];
-    if (![self followLink]) return [super mouseDown:theEvent];
-    return self;
+    if ([theEvent clickCount] != 2) { [super mouseDown:theEvent]; return; }
+    if (![self followLink]) [super mouseDown:theEvent];
 }
 
 
@@ -1463,6 +1546,11 @@ void loadPlainText()
 //	We have to use a "dummy" flag to mean "This has an anchor: be careful!"
 //	This is horrible.
 
+//	Port: AppKit gives typed text the attributes of the text before it
+//	(including our anchor and paragraph style), so there is no damage to
+//	undo and this override is left out. It is kept here for reference.
+
+#ifdef PORT_NEXT_TEXT_DAMAGE
 - keyDown:(NXEvent*)theEvent
 #ifdef TRY1
 {
@@ -1602,18 +1690,18 @@ void loadPlainText()
     }
 }
 #endif
+#endif /* PORT_NEXT_TEXT_DAMAGE */
 //	After paste, determine paragraph styles for pasted material:
 //	------------------------------------------------------------
 
-- paste:sender;
+- (void)paste:sender				// Port: AppKit's paste: returns nothing
 {
-    id result;
     int originalLength = textLength;
     int originalStart = sp0.cp;
     int originalEnd = spN.cp;
     Anchor * typingInfo;
     
-    result = [super paste:sender];		// Do the paste
+    [super paste:sender];			// Do the paste
         
     {
 	int inserted = originalEnd-originalStart +
@@ -1640,14 +1728,13 @@ void loadPlainText()
 	    else typingInfo = 0;
 	    
 	    for (r=s; pos+r->chars<sp0.cp; pos=pos+(r++)->chars) {
-	        r->paraStyle = HTStyleForRun(styleSheet, r)->paragraph;
+		HTStyle * best = HTStyleForRun(styleSheet, r);	/* Port: may be 0 */
+	        r->paraStyle = best ? best->paragraph : 0;
 		r->info = typingInfo;
 	    }
-	    
+	    [self calcLine];			/* Port: NeXT showed run changes at once */
 	}
     }
-    
-    return result;
 }
 
 @end

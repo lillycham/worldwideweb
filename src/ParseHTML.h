@@ -9,6 +9,9 @@
 
 #import "HTStyle.h"
 
+/* Port: <MacTypes.h> has a type called Fixed, so the style is renamed. */
+#define Fixed SGML_Fixed
+
 extern HTStyleSheet * styleSheet;
 
 #ifndef NEXT_CHAR
@@ -430,6 +433,8 @@ int readSGML(HyperText * self, FILE * stream, int diagnostic)
     get_styles();
     styleStack = 0;
     current_style = &Normal;
+    next_style = &Normal;			/* Port: was never set, so text before the
+					** first style tag read through a null pointer */
     
     if (TRACE) printf("Parsing SGML stream %i\n", sgmlStream);
     START_OUTPUT;
@@ -1002,7 +1007,7 @@ printable:
 		if (check("</TITLE>")) {
 		    title[title_length]=0;		/* Add a terminator */
 		    if (TRACE)printf("\nTitle:\t`%s'\n", title);
-		    [[self window] setTitle:title];
+		    NXSetWindowTitle([self window], title);
 		    SETSTATE( S_text);
 		} else SETSTATE( S_junk_tag);	/* @@@ forgets < in titles! */
 	    } else {
@@ -1032,7 +1037,7 @@ printable:
 	free(N);
     }
     
-    [window setDocEdited:NO];
+    [[self window] setDocEdited:NO];
     tFlags.changeState = 0; 		/* Please notify delegate if changed */
     return self;
     
@@ -1071,6 +1076,28 @@ static SGML_style * currentSGML;
 static const char * saveName;	/* pointer to name node is being saved under */
 static char * prefix;		/* Pointer to prefix string to be junked */
 static int	lineLength;	/* Number of characters on a line so far */
+
+/*	Port: the text now holds unichars (see output_byte() in HyperText.m), so
+**	the writer tests for white space without WHITE(), which looks only at
+**	the low byte, and writes characters out as UTF-8.
+*/
+#define UWHITE(c) ((c) <= ' ')
+
+static void put_unichar(NXStream * s, unichar c)
+{
+    static unichar high = 0;		/* First half of a surrogate pair */
+    char buf[8];
+    NSString * str;
+    if (c >= 0xD800 && c < 0xDC00) { high = c; return; }
+    if (c < 0x80) { NXPrintf(s, "%c", (char)c); high = 0; return; }
+    if (high && c >= 0xDC00 && c < 0xE000) {
+	unichar pair[2] = { high, c };
+	str = [NSString stringWithCharacters:pair length:2];
+    } else str = [NSString stringWithCharacters:&c length:1];
+    high = 0;
+    if ([str getCString:buf maxLength:sizeof(buf) encoding:NSUTF8StringEncoding])
+	NXPrintf(s, "%s", buf);
+}
 
 /*	This function, for any paragraph style, finds the SGML style, if any
 */
@@ -1118,7 +1145,7 @@ void change_run(NXRun *last, NXRun *r)
 	if (currentSGML) {
 
 	    if (currentSGML->free_format)
-	     while(chars_left && WHITE(*read_pointer)) {/* Strip leading */
+	     while(chars_left && UWHITE(*read_pointer)) {/* Strip leading */
 		(chars_left)--;				/*   white space */
 		(void) NEXT_TEXT_CHAR;
 	    }
@@ -1172,15 +1199,15 @@ void change_run(NXRun *last, NXRun *r)
 */
     {
 	while (chars_left) {	
-	    char c = NEXT_TEXT_CHAR;
+	    unichar c = NEXT_TEXT_CHAR;			/* Port: was char */
 	    chars_left--;
 	    if (prefix) {
 	        if (*prefix) {
-		    if (c==*prefix) {
+		    if (c==NXUnicharForByte(*prefix)) {	/* Port: prefix is NeXT bytes */
 			++prefix;
 			continue;			/* Strip prefix characters */
 		    }
-		    if (WHITE(c)) continue;			/* Strip white space */
+		    if (UWHITE(c)) continue;			/* Strip white space */
 		    if (TRACE) printf(
 	   "HTML: WARNING: Paragraph prefix incomplete: %i found where %i expected.\n",
 			     c, *prefix);
@@ -1217,12 +1244,12 @@ void change_run(NXRun *last, NXRun *r)
 		    }
 		    
 		    if (currentSGML->litteral) {
-		        NXPrintf(sgmlStream, "%c", c);
+		        put_unichar(sgmlStream, c);
 		    } else {
 			switch(c) {
 		    	case '<': 	NXPrintf(sgmlStream, "&lt;"); break;
 		    	case '&': 	NXPrintf(sgmlStream, "&amp;"); break;
-			default:	NXPrintf(sgmlStream, "%c", c); break;
+			default:	put_unichar(sgmlStream, c); break;
 			} /* switch */
 		    } /* not litteral */
 	        }
@@ -1257,7 +1284,7 @@ void change_run(NXRun *last, NXRun *r)
     lineLength = 0;			/* Starting in column 1 */
     		
     NXPrintf(stream, "<HEADER>\n");
-    NXPrintf(stream, "<TITLE>%s</TITLE>", [window title]);
+    NXPrintf(stream, "<TITLE>%s</TITLE>", NXWindowTitle([self window]));
     
     if (nextAnchorNumber) NXPrintf(stream, "\n<NEXTID N=\"%i\">\n",
 	 nextAnchorNumber);

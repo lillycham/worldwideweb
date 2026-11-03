@@ -10,6 +10,7 @@
 #import <appkit/Application.h>
 // #import <appkit/defaults.h>			/* TBL */
 #import "HTUtils.h"				/* TBL */
+#import "HTTP.h"				/* Port: for HTTP_Version09 */
 #import <string.h>				/* TBL */
 #import <libc.h>				/* TBL */
 #import <appkit/PrintInfo.h>			/* TBL */
@@ -27,13 +28,16 @@ static int int_default(const char * param)
     return result;
 }
 
-void main(int argc, char *argv[])
+extern void WWWLoadMainNib(void);		/* Port: see WorldWideWeb_nib.m */
+
+int main(int argc, char *argv[])
 {
 //    NXArgc = argc;		/* TBL */
 //    NXArgv = argv;		/* TBL */
 
     char *p;
-    
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];	/* Port */
+
     static NXDefaultsVector myDefaults = {
         { "PaperType", "Letter"},		// Non-USA users will have to override
 	{ "LeftMargin", "72"},			//  (72) Space for ring binding
@@ -44,14 +48,26 @@ void main(int argc, char *argv[])
     };
     
     
-    appDirectory = malloc(strlen(argv[0]));
-    strcpy(appDirectory, argv[0]);
-    if (p = strrchr(appDirectory, '/')) p[1]=0;	/* Chop home directory after slash */
+//	Port: on NeXT the resources were next to the executable, in
+//	WorldWideWeb.app. A Mac bundle keeps them in Contents/Resources.
+    {
+	const char * resources = [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation];
+	appDirectory = malloc(strlen(resources) + 2);
+	strcpy(appDirectory, resources);
+	strcat(appDirectory, "/");
+    }
+    p = appDirectory;
+    if (getenv("WWW_TRACE")) WWW_TraceFlag = 1;	/* Port: trace from launch */
     if (TRACE) printf("WWW: Run from %s\n", appDirectory);
 
-    NXApp = [Application new];
+    [NSApplication sharedApplication];		/* Port: was [Application new] */
+    [NXApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     NXRegisterDefaults("WorldWideWeb", myDefaults);
-    [NXApp loadNibSection:"WorldWideWeb.nib" owner:NXApp];
+    {					/* Port: see HTTP.c */
+	const char * v = NXGetDefaultValue("WorldWideWeb", "HTTP09");
+	HTTP_Version09 = v && (*v == 'Y' || *v == 'y' || *v == '1');
+    }
+    WWWLoadMainNib();				/* Port: was loadNibSection: */
 
 //	The deafult Margins seem to be 72, 72, 108, 108 which is a lot.    
     {
@@ -67,6 +83,6 @@ void main(int argc, char *argv[])
     }
     
     [NXApp run];
-    [NXApp free];
+    [pool release];
     exit(0);
 }

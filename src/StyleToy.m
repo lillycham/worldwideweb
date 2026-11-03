@@ -34,9 +34,9 @@ static SavePanel * save_panel;		/* Keep a Save panel too */
 
 + new
 {
-    self = [super new];
-    [self loadDefaultStyleSheet];
-    return self;
+    StyleToy * me = [super new];	// Port: was self (class method)
+    [me loadDefaultStyleSheet];
+    return me;
 }
 
 //	Set connections to other objects:
@@ -79,7 +79,7 @@ static SavePanel * save_panel;		/* Keep a Save panel too */
     if(style->SGMLTag) [ParameterForm setStringValue:style->SGMLTag at:SGMLTAG_FIELD];
     else [ParameterForm setStringValue:"" at:SGMLTAG_FIELD];
     
-    [ParameterForm setStringValue:[style->font name] at:FONT_NAME_FIELD];
+    [ParameterForm setStringValue:NXFontName(style->font) at:FONT_NAME_FIELD];
 
     [ParameterForm setFloatValue:style->fontSize at:FONT_SIZE_FIELD];
     

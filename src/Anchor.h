@@ -30,7 +30,7 @@
     id		DestAnchor;	// The anchor, if loaded, to which this leads
 }
 
-+ initialize;
++ (void)initialize;
 + setManager:aManager;		// Set class variable
 
 + newAddress:(const char *)address;

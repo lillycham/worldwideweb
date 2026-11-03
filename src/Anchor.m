@@ -23,12 +23,12 @@ static HyperManager *manager;
 static List * orphans;		// Grand list of all anchors with no parents
 List * HTHistory;		// List of visited anchors
 
-+ initialize 
++ (void)initialize		/* Port: +initialize returns nothing now */
 {
+    if (self != [Anchor class]) return;
     orphans = [List new];
     HTHistory = [List new];
     [Anchor setVersion:ANCHOR_CURRENT_VERSION];
-    return self;
 }
 
 + setManager:aManager
@@ -83,26 +83,27 @@ PRIVATE BOOL equivalent(const char * s, const char *t)
 
 + newParent:(Anchor *)anAnchor tag:(const char *)tag
 {
+    Anchor * me;			/* Port: was self, which a class method cannot use for ivars */
     List * kids = anAnchor->children;
     int n = [kids count];
     int i;
     
     for(i=0; i<n; i++) {
-	self = [kids objectAt:i];
-	if (equivalent(Address, tag)) {
+	me = [kids objectAt:i];
+	if (equivalent(me->Address, tag)) {
 	    if (TRACE) printf("Sub-anchor %p with name `%s' already exists.\n",
-		self, tag);
-	    return self;
+		me, tag);
+	    return me;
 	}
     }
 
-    self = [Anchor new];
+    me = [Anchor new];
     if (TRACE) printf("new Anchor %p named `%s' is child of %p\n",
-    			self, tag, anAnchor);
-    parent = anAnchor;
-    [parent->children addObject:self];
-    StrAllocCopy(Address, tag);
-    return self;
+    			me, tag, anAnchor);
+    me->parent = anAnchor;
+    [me->parent->children addObject:me];
+    StrAllocCopy(me->Address, tag);
+    return me;
 }
 
 
@@ -116,6 +117,7 @@ PRIVATE BOOL equivalent(const char * s, const char *t)
 
 + newAddress:(const char *)anAddress;
 {
+    Anchor * me;			/* Port: was self (see above) */
     char * anc = HTParse(anAddress, "", PARSE_ANCHOR); // Anchor id specified?
 
 //	If the node is a sub-anchor, we recursively load its parent.
@@ -126,7 +128,7 @@ PRIVATE BOOL equivalent(const char * s, const char *t)
 		 PARSE_ACCESS|PARSE_HOST|PARSE_PATH|PARSE_PUNCTUATION);
         Anchor * foundParent = [Anchor newAddress:nod];
 	free(nod);
-	self = [Anchor newParent:foundParent tag:anc];
+	me = [Anchor newParent:foundParent tag:anc];
     	free (anc);
 
 //	If the node has no parent, we check in a list of such nodes to see
@@ -137,20 +139,20 @@ PRIVATE BOOL equivalent(const char * s, const char *t)
 	int n=[orphans count];
 	free(anc);
 	for(i=0; i<n; i++) {
-	    self = [orphans objectAt:i];
-	    if (equivalent(Address, anAddress)) {
+	    me = [orphans objectAt:i];
+	    if (equivalent(me->Address, anAddress)) {
 		if (TRACE) printf(
 			"Anchor %p with address `%s' already exists.\n",
-		    	self, anAddress);
-		return self;
+		    	me, anAddress);
+		return me;
 	    }
 	}
-    	self = [Anchor new];
-	if (TRACE) printf("new Anchor %p has address `%s'\n", self, anAddress);
-    	StrAllocCopy(Address, anAddress);
-    	[orphans addObject:self];
+    	me = [Anchor new];
+	if (TRACE) printf("new Anchor %p has address `%s'\n", me, anAddress);
+    	StrAllocCopy(me->Address, anAddress);
+    	[orphans addObject:me];
     }
-    return self;
+    return me;
 }
 
 

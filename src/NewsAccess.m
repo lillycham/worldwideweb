@@ -36,8 +36,8 @@ extern HTStyleSheet * styleSheet;
 
 #ifdef NeXT
 #import <libc.h>		/* NeXT has all this packaged up */
-#define ntohs(x) (x)
-#define htons(x) (x)
+/* Port: no-op ntohs() and htons() removed, as in tcp.h: the NeXT was
+** big-endian, Intel and Apple silicon are not. */
 #else
 #include <string.h>		/* For bzero etc */
 #include <stdio.h>
@@ -105,7 +105,7 @@ PRIVATE char next_char(void)
 //	3.	News
 //	4.	Defualt to cernvax.cern.ch	(!!!)
 
-+ initialize
++ (void)initialize		/* Port: +initialize returns nothing now */
 {
     const struct hostent  *phost;	    		/* Pointer to host - See netdb.h */
     struct sockaddr_in* sin = &soc_address;
@@ -113,7 +113,7 @@ PRIVATE char next_char(void)
 /*  Set up defaults:
 */
     sin->sin_family = AF_INET;	    	/* Family = internet, host order  */
-    sin->sin_port = NEWS_PORT;		    	/* Default: new port,    */
+    sin->sin_port = htons(NEWS_PORT);	/* Port: was NEWS_PORT, see above */
 
 /*   Get name of Host
 */
@@ -147,7 +147,6 @@ PRIVATE char next_char(void)
 
     s=-1;		/* Disconnected */
     
-    return self;
 }
 
 
@@ -802,7 +801,7 @@ void read_group(const char * groupName, int first_required, int last_required)
     for(retries=0;retries<2; retries++){
     
         if (s<0) {
-    	    [[HT window]setTitle:"Connecting to NewsHost ..."];	/* Tell user  */
+    	    NXSetWindowTitle([HT window], "Connecting to NewsHost ...");	/* Tell user  */
 	    s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	    status = connect(s, (struct sockaddr*)&soc_address, sizeof(soc_address));
 	    if (status<0){
@@ -830,14 +829,14 @@ void read_group(const char * groupName, int first_required, int last_required)
 			    "Could not retrieve information:\n   %s.",
 			    NULL,NULL,NULL,
 			    response_text);
-    			[[HT window]setTitle: "News host response"];
+    			NXSetWindowTitle([HT window], "News host response");
 			[HT setText:response_text];
 			return HT;
 		}
 	    }
 	} /* If needed opening */
 	
-        [[HT window]setTitle:arg];		/* Tell user something's happening */
+        NXSetWindowTitle([HT window], arg);		/* Tell user something's happening */
 	status = response(command);
 	if (status<0) break;
 	if ((status/ 100) !=2) {

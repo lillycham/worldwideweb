@@ -17,8 +17,9 @@
 */
 #ifdef NeXT
 #include <libc.h>		/* NeXT has all this packaged up */
-#define ntohs(x) (x)
-#define htons(x) (x)
+/* Port: the 68k NeXT was big-endian, so TBL defined ntohs() and htons()
+** as no-ops here. On Intel and Apple silicon they must swap bytes, so we
+** use the real ones from <arpa/inet.h> (via compat/libc.h). */
 #include <sys/errno.h>		/* Get ECONNRESET etc */
 #define SELECT			/* Is supported ok */
 #define INCLUDES_DONE

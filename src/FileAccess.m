@@ -31,9 +31,8 @@ extern char * appDirectory;		/* Pointer to directory for application */
 
 //	Initialize this class
 //
-+ initialize
++ (void)initialize		// Port: +initialize returns nothing now
 {
-    return [super initialize];
 }
 
 
@@ -298,7 +297,7 @@ const char * ask_name(HyperText * hint, int format)
 
 	    HT = [HyperText newAnchor:anAnchor Server:self];
 	    [HT setupWindow];			
-	    [[HT window]setTitle:filename];	 // Show something's happening
+	    NXSetWindowTitle([HT window], filename);	 // Show something's happening
 
 	    if (file_number<0)
 	        [HT setEditable:HTEditable(filename)]; // This is editable?

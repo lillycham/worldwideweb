@@ -13,9 +13,9 @@
 #import "HTParse.h"
 #import "FileAccess.h"
 
-@implementation HyperManager 
+#import "WWWPageLayout.h"		// Port: moved out of the @implementation
 
-#import "WWWPageLayout.h"
+@implementation HyperManager 
 
 #define THIS_TEXT  (HyperText *)[[[NXApp mainWindow] contentView] docView]
 
@@ -33,9 +33,9 @@ PRIVATE FileAccess * fileAccess = nil;
 
 + new
 {
-    self = [super new];
-    accesses = [List new];		// Create and clear list
-    return self;
+    HyperManager * me = [super new];	// Port: was self (class method)
+    me->accesses = [List new];		// Create and clear list
+    return me;
 }
 
 - traceOn:sender { WWW_TraceFlag = 1; return self;}
@@ -410,7 +410,7 @@ PRIVATE FileAccess * fileAccess = nil;
 - setTitle: sender
 {
     Window * thisWindow = [NXApp mainWindow];
-    [thisWindow setTitle:[titleString stringValueAt:0]];
+    NXSetWindowTitle(thisWindow, [titleString stringValueAt:0]);
     [thisWindow setDocEdited:YES];
     return self;
 }
@@ -429,7 +429,7 @@ PRIVATE FileAccess * fileAccess = nil;
     }
     {
     	char * source_address = [source fullAddress];
-    	[addressString setStringValue: source_address];
+    	[addressString setStringValue: NXString(source_address)];
 	free(source_address);
     }
 
@@ -475,8 +475,8 @@ PRIVATE FileAccess * fileAccess = nil;
         [[keywords window] close];
 //        [[keywords window] orderOut:self];	bug?
     }
-    [titleString setStringValue: [[sender window] title] at:0];
-    [addressString setStringValue: [[sender nodeAnchor] address]];
+    [titleString setStringValue: NXWindowTitle([sender window]) at:0];
+    [addressString setStringValue: NXString([[sender nodeAnchor] address])];
 //  [openString setStringValue: [[sender nodeAnchor] address] at:0];
     return self;
 }

@@ -22,6 +22,16 @@
 - readPrintInfo;
 - writePrintInfo;
 
+/* NIB outlet setting methods (Port: declared, so that the compiler does not
+** take NSPrintInfo's setLeftMargin: and so on, which take a number) */
+
+- setTopBotForm:anObject;
+- setSideForm:anObject;
+- setLeftMargin:anObject;
+- setRightMargin:anObject;
+- setTopMargin:anObject;
+- setBottomMargin:anObject;
+
 @end
 
 
