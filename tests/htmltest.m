@@ -57,6 +57,7 @@ int main(int argc, char * argv[])
     int i;
     appDirectory = "original/NextStep/Implementation/WorldWideWeb.app/";
     if (getenv("WWW_TRACE")) WWW_TraceFlag = 1;
+    if (getenv("HTTP09")) HTTP_Version09 = 1;	/* Send TBL's HTTP/0.9 request */
     [NSApplication sharedApplication];		/* No windows, no activation */
     [StyleToy new];				/* Loads default.style */
 
