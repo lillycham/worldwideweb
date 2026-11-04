@@ -370,6 +370,37 @@ static int parse_example(SGML_style * style, char * terminator)
 }
 
 
+/*	Port: attribute values
+**	----------------------
+**
+**	An HREF may be in single quotes (href='...') as well as double ones, and
+**	entities in it must be decoded: href="a?b=1&amp;c=2" means "a?b=1&c=2".
+**	TBL's parser took only double quotes, and decoded entities only in text.
+*/
+static char href_quote = '"';		/* The quote which ends this HREF */
+
+static void decode_entities(char * s)
+{
+    static const struct { const char * name; char c; } entities[] = {
+	{ "&amp;", '&' }, { "&lt;", '<' }, { "&gt;", '>' },
+	{ "&quot;", '"' }, { "&apos;", '\'' }, { "&#39;", '\'' }, { 0, 0 } };
+    char * r = s, * w = s;
+    while (*r) {
+	int i;
+	for (i = 0; entities[i].name; i++) {
+	    size_t n = strlen(entities[i].name);
+	    if (strncasecmp(r, entities[i].name, n) == 0) {
+		*w++ = entities[i].c;
+		r += n;
+		break;
+	    }
+	}
+	if (!entities[i].name) *w++ = *r++;
+    }
+    *w = 0;
+}
+
+
 /*	Read in an SGML Stream						readSGML:
 **	----------------------
 */
@@ -756,6 +787,7 @@ printable:
 		int anchorNumber;
 		
 	        reference[reference_length]=0;		/* Terminate it */
+		decode_entities(reference);		/* Port: "&amp;" means "&" */
 	        anchor_name[anchor_name_length]=0;	/* Terminate it */
 
 		style->anchor =
@@ -788,7 +820,10 @@ printable:
 	    SETSTATE( S_junk_tag);
     
 	case S_href:
-	    if (c=='"') SETSTATE (S_href_quoted);
+	    if ((c=='"') || (c=='\'')) {	/* Port: single quotes too */
+		href_quote = c;
+		SETSTATE (S_href_quoted);
+	    }
 	case S_href_unquoted:
 	    if ((c==' ') || (c=='\n')) SETSTATE( S_anchor);
 	    if (c=='>'){
@@ -801,7 +836,7 @@ printable:
 	    SETSTATE(S_href_unquoted);
 
 	case S_href_quoted:
-	    if (c=='"') SETSTATE( S_anchor);
+	    if (c==href_quote) SETSTATE( S_anchor);	/* Port: was '"' */
 	    if (reference_length<REFERENCE_LENGTH-1) {
 		reference[reference_length++] = c;
 	    }
