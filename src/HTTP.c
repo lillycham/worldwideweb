@@ -78,7 +78,8 @@ int HTTP_Get(arg)
     strcpy(command, "GET ");
     {
 	char * p1 = HTParse(arg, "", PARSE_PATH|PARSE_PUNCTUATION);
-	strcat(command, p1);
+	strcat(command, *p1 ? p1 : "/");	/* Port: "/" for an empty path, as
+					** for http://cat-v.org (was "GET " alone) */
 	free(p1);
     }
     if (HTTP_Version09) {
