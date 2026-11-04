@@ -5,6 +5,7 @@
 #include "HTUtils.h"
 #include "HTParse.h"
 #include "tcp.h"	/* For string only */
+#include <ctype.h>	/* Port: for isalnum() in scan() */
 
 struct struct_parts {
 	char * access;
@@ -79,6 +80,10 @@ PRIVATE void scan(name, parts)
 	}
 	if (*p=='/') break;
 	if (*p=='#') break;
+	/* Port: an access name has only letters, digits, "+", "-" and ".",
+	** so stop at anything else (such as the "?" in
+	** "article.php?a=https://...", which is a relative address). */
+	if (*p && !isalnum((unsigned char)*p) && *p!='+' && *p!='-' && *p!='.') break;
     }
     
     for(p=name+length-1; p>=name; p--) {

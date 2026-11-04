@@ -49,7 +49,7 @@ int HTTP_Get(arg)
 #endif
 {
     int s;				/* Socket number for returned data */
-    char command[1025];			/* The whole command (Port: was 257) */
+    char command[4097];			/* The whole command (Port: was 257) */
     int status;				/* tcp return */
  
     struct sockaddr_in soc_address;	/* Binary network address */
@@ -78,7 +78,8 @@ int HTTP_Get(arg)
     strcpy(command, "GET ");
     {
 	char * p1 = HTParse(arg, "", PARSE_PATH|PARSE_PUNCTUATION);
-	strcat(command, *p1 ? p1 : "/");	/* Port: "/" for an empty path, as
+	strlcat(command, *p1 ? p1 : "/", sizeof(command) - 512); /* Port: bounded (room
+					** for the header lines), and "/" for an empty path, as
 					** for http://cat-v.org (was "GET " alone) */
 	free(p1);
     }

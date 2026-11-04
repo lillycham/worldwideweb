@@ -413,7 +413,8 @@ int readSGML(HyperText * self, FILE * stream, int diagnostic)
 /*	Information to be accumulated:
 */
     char title[256];			/* See <TITLE> tag. */
-    char reference[256];		/* See <A HREF=...> attribute */
+#define REFERENCE_LENGTH 2048		/* Port: was 256. Some addresses now are longer */
+    char reference[REFERENCE_LENGTH];	/* See <A HREF=...> attribute */
     char anchor_name[256];		/* See <A NAME=...> attribute */
     int title_length = 0;
     int reference_length = 0;
@@ -794,14 +795,14 @@ printable:
 	        BACK_UP;
 	    	SETSTATE( S_anchor);
 	    }
-	    if (reference_length<255) {
+	    if (reference_length<REFERENCE_LENGTH-1) {
 		reference[reference_length++] = c;
 	    }
 	    SETSTATE(S_href_unquoted);
 
 	case S_href_quoted:
 	    if (c=='"') SETSTATE( S_anchor);
-	    if (reference_length<255) {
+	    if (reference_length<REFERENCE_LENGTH-1) {
 		reference[reference_length++] = c;
 	    }
 	    SETSTATE( state);

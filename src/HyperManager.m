@@ -126,15 +126,17 @@ PRIVATE FileAccess * fileAccess = nil;
 //	Error: No access. Print useful error message.
 
     {
-	char got[100];
+	char got[256];				/* Port: was 100 */
 	char *format;
 	
 	format = *s ?
 	"Invalid access prefix for `%s'\n    Can be one of %s but not `%s:'.\n"
 	: "No access prefix specified for `%s'\n    Accesses are: %s .\n";
 
-	for(i=0; i<[accesses count]; i++) {
-	    sprintf(got, "%s: ",[[accesses objectAt:i] name]);
+	got[0] = 0;
+	for(i=0; i<[accesses count]; i++) {	/* Port: was sprintf(got, ...), */
+	    strcat(got, [[accesses objectAt:i] name]);	/* which kept only */
+	    strcat(got, ": ");				/* the last name */
 	}
 	printf(format,[anAnchor address], got, s);
 	NXRunAlertPanel(NULL,format,
