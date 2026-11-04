@@ -203,8 +203,11 @@ PUBLIC int HTParseInet(sin, str)
 
 /*	Parse host number if present
 */  
-    if (*host>='0' && *host<='9') {   /* Numeric node address: */
-	sin->sin_addr.s_addr = inet_addr(host); /* See arpa/inet.h */
+    if (inet_aton(host, &sin->sin_addr)) {   /* Numeric node address: */
+	/* Port: was "if it starts with a digit, it is a number", as the old
+	** host name rules (RFC 952) said. Names such as 9front.org may
+	** start with a digit (RFC 1123), so now the whole name must parse
+	** as an address. inet_aton() has filled in sin_addr. */
 
     } else {		    /* Alphanumeric node name: */
 	phost=gethostbyname(host);	/* See netdb.h */

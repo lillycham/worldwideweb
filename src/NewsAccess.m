@@ -122,8 +122,8 @@ PRIVATE char next_char(void)
         if ((NewsHost = NXGetDefaultValue("News","NewsHost")) == 0)
 	    NewsHost = "cernvax.cern.ch";
 
-    if (*NewsHost>='0' && *NewsHost<='9') {   /* Numeric node address: */
-	sin->sin_addr.s_addr = inet_addr((char *)NewsHost); /* See arpa/inet.h */
+    if (inet_aton(NewsHost, &sin->sin_addr)) {   /* Numeric node address: */
+	/* Port: was a test for a first digit; see HTParseInet() in HTTCP.c */
 
     } else {		    /* Alphanumeric node name: */
 	phost=gethostbyname((char*)NewsHost);	/* See netdb.h */

@@ -273,8 +273,8 @@ PRIVATE int get_connection(arg)
     {
 	char *p1 = HTParse(arg, "", PARSE_HOST);
 	
-	if (*p1>='0' && *p1<='9') {   /* Numeric node address: */
-	    sin->sin_addr.s_addr = inet_addr(p1); /* See arpa/inet.h */
+	if (inet_aton(p1, &sin->sin_addr)) {   /* Numeric node address: */
+	    /* Port: was a test for a first digit; see HTParseInet() */
 
 	} else {		    /* Alphanumeric node name: */
 	    phost=gethostbyname(p1);	/* See netdb.h */
