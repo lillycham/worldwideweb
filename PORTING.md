@@ -53,6 +53,9 @@ modern Mac.
   style. Text pasted from another application has none.
 - **`BOOL`.** `HTUtils.h` defined `BOOL` as `char` when it was not a macro.
   In Objective-C now, `BOOL` is a type, so the `#ifndef` could not see it.
+- **Duplicate global.** `HTString.c` and `HyperManager.m` both defined
+  `WWW_TraceFlag`. Older toolchains merged those tentative definitions;
+  current Clang reports a duplicate symbol. `HyperManager.m` now declares it.
 
 ## Changes in behaviour
 

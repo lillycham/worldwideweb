@@ -23,7 +23,7 @@ extern char * WWW_nameOfFile(const char * name);	/* In file access */
 
 /*	Exported to everyone */
 
-int WWW_TraceFlag;	/* Exported to everyone */
+extern int WWW_TraceFlag;	/* Port: defined by HTString.c, not here too */
 char * appDirectory;	/* Name of the directory containing the application */
 
 
